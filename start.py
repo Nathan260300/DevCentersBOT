@@ -7,8 +7,6 @@ from keep_alive import keep_alive
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
 
-token = "MTMzMzA0MTI4NjcwNTQ0NjkzMg.GBCkuq.Dhmg82UGd6yJkueyJjuMQvbAUNB3Aqqqc-JvJo"
-
 class MonBot(commands.Bot):
     async def setup_hook(self):
         for extension in ['games', 'moderation']:
