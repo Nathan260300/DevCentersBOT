@@ -9,8 +9,11 @@ token = os.getenv("DISCORD_TOKEN")
 
 class MonBot(commands.Bot):
     async def setup_hook(self):
-        for extension in ['games', 'moderation']:
-            await self.load_extension(f"cogs.{extension}")
+        try:
+            await self.load_extension("cogs.games")
+            print("Extension 'games' chargée avec succès")
+        except Exception as e:
+            print(f"Erreur lors du chargement de l'extension 'games' : {e}")
 
 intents = discord.Intents.all()
 bot = MonBot(command_prefix="!", intents=intents)
