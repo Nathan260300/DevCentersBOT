@@ -23,6 +23,9 @@ async def on_ready():
         print(f"{len(synced)} commande(s) synchronisée(s)")
     except Exception as e:
         print(e)
+    activity = discord.Game(name="GitHub.")
+    await bot.change_presence(status=discord.Status.online, activity=activity)
+    print('Statut mis à jour')
 
 keep_alive()
 bot.run(token=token)
