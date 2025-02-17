@@ -31,6 +31,17 @@ class ModerationCog(commands.Cog):
             await ctx.message.delete()
         except discord.errors.NotFound:
             pass 
+    
+    @commands.hybrid_command(help="Répète un message un nombre spécifié de fois.")
+    @commands.has_permissions(manage_messages=True)
+    async def repete(self, ctx: commands.Context, nombre: int, message: str):
+        await ctx.send(message)
+        for _ in range(1, nombre):
+            await ctx.send(message)
+    @repete.error
+    async def repete_error(self, ctx: commands.Context, error: Exception):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("**Vous n'avez pas la permission d'exécuter cette commande.**", delete_after=5)
         
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))
