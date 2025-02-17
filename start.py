@@ -9,11 +9,11 @@ token = os.getenv("DISCORD_TOKEN")
 
 class MonBot(commands.Bot):
     async def setup_hook(self):
-        for extension in ['games', 'moderation']:
-            await self.load_extension(f"cogs.{extension}")
+      for extension in ['games', 'moderation', 'help']:
+        await self.load_extension(f"cogs.{extension}")
 
 intents = discord.Intents.all()
-bot = MonBot(command_prefix="!", intents=intents)
+bot = MonBot(command_prefix="!", intents=intents, help_command=None)
 
 @bot.event
 async def on_ready():
@@ -23,8 +23,8 @@ async def on_ready():
         print(f"{len(synced)} commande(s) synchronisée(s)")
     except Exception as e:
         print(e)
-    activity = discord.Game(name="GitHub.")
-    await bot.change_presence(status=discord.Status.online, activity=activity)
+    activity = discord.Game(name="VS Code.")
+    await bot.change_presence(status=discord.Status.dnd, activity=activity)
     print('Statut mis à jour')
 
 keep_alive()
