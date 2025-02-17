@@ -8,25 +8,28 @@ class GamesCog(commands.Cog):
     @commands.hybrid_command()
     async def dé(self, ctx):
         result = random.randint(1, 6)
-        await ctx.send(f"{ctx.author.name} lance un dé et obtient : {result}")
+        await ctx.send(f"**{ctx.author.name} lance un dé et obtient : __{result}__**")
 
     @commands.hybrid_command()
     async def pileouface(self, ctx):
         result = random.choice(["pile", "face"])
-        await ctx.send(f"Résultat obtenu : {result}")
+        await ctx.send(f"**Résultat obtenu : __{result}__**")
+
+    @commands.hybrid_command()
+    async def addition(self, ctx: commands.Context, a: int, b: int):
+        await ctx.send(f"**{a} + {b} = __{a + b}__**")
 
     @commands.hybrid_command()
     async def soustraire(self, ctx: commands.Context, a: int, b: int):
-        await ctx.send(f"La différence entre {a} et {b} est {a - b}")
+        await ctx.send(f"**{a} - {b} = __{a - b}__**")
 
     @commands.hybrid_command()
     async def ping(self, ctx):
-        await ctx.send("Pong !")
+        await ctx.send("**Pong 🏓 !**")
 
-    @commands.hybrid_command(name="multiplication", with_app_command=True)
+    @commands.hybrid_command()
     async def multiplication(self, ctx: commands.Context, a: int, b: int):
-        result = a * b
-        await ctx.send(f"{a} x {b} = {result}")
+        await ctx.send(f"**{a} x {b} = __{a * b}__**")
 
 async def setup(bot):
     await bot.add_cog(GamesCog(bot))
