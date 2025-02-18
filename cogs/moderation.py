@@ -43,5 +43,34 @@ class ModerationCog(commands.Cog):
         if isinstance(error, commands.MissingPermissions):
             await ctx.send("**Vous n'avez pas la permission d'exécuter cette commande.**", delete_after=5)
         
+    @commands.hybrid_command(help="Bannit un membre définitivement du serveur.")
+    @commands.has_permissions(ban_members=True)  
+    async def ban(self, ctx: commands.Context, member: discord.Member, *, reason: str = "Aucune raison spécifiée"):
+        """Commande pour bannir un membre avec une raison"""
+        if ctx.author == member:
+            await ctx.send("❌ **Vous ne pouvez pas vous bannir vous-même !**", delete_after=5)
+            return
+        if ctx.guild.owner_id == member.id:
+            await ctx.send("❌ **Vous ne pouvez pas bannir le propriétaire du serveur !**", delete_after=5)
+            return
+        if ctx.author.top_role <= member.top_role:
+            await ctx.send("❌ **Vous ne pouvez pas bannir un membre ayant un rôle égal ou supérieur au vôtre !**", delete_after=5)
+            return
+        try:
+            await member.ban(reason=reason)
+            await ctx.send(f"✅ **{member.mention} a été banni pour la raison :** {reason}")
+        except discord.errors.Forbidden:
+            await ctx.send("❌ **Je n'ai pas la permission de bannir ce membre.**", delete_after=5)
+    @ban.error
+    async def ban_error(self, ctx: commands.Context, error: Exception):
+        """Gestion des erreurs pour la commande ban"""
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("🚫 **Vous n'avez pas la permission de bannir des membres !**", delete_after=5)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("⚠ **Veuillez mentionner un membre à bannir.**\nExemple : `/ban @membre raison`", delete_after=5)
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
+
+
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))
