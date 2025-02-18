@@ -11,7 +11,7 @@ class HelpCog(commands.Cog):
         # type: ignore
         self, interaction: discord.Interaction, current: str
     ) -> List[app_commands.Choice[str]]:
-        categories = ["Aide", "Jeux", "Modération"]
+        categories = ["Aide", "Jeux", "Modération", "Bot-Control"]
         return [
             app_commands.Choice(name=cat, value=cat)
             for cat in categories if current.lower() in cat.lower()
@@ -39,12 +39,16 @@ class HelpCog(commands.Cog):
                 ("ping", "Une blague..."),
             ],
             "Modération": [
-                ("kick", "Expulse un utilisateur du serveur."),
+                ("kick", "Expulse un membre du serveur avec une raison facultative."),
                 ("ban", "Bannit un membre définitivement."),
                 ("tempban", "Bannit un membre temporairement."),
                 ("mute", "Mute un membre pour une durée définie."),
                 ("clear", "Supprime un nombre spécifié de messages."),
                 ("repete", "Répète un message un certain nombre de fois."),
+            ],
+            "Bot Control": [
+                ("restart", "Redémarre le bot"),
+                ("stop", "Arrête le bot."),
             ],
         }
 
@@ -60,7 +64,7 @@ class HelpCog(commands.Cog):
                 embed.color = discord.Color.red()
                 embed.add_field(
                     name="❌ Erreur",
-                    value=f"La catégorie `{category}` n'existe pas.\nEssayez : `Aide`, `Jeux`, `Modération`.",
+                    value=f"La catégorie `{category}` n'existe pas.\nEssayez : `Aide`, `Jeux`, `Modération`, `Bot-Control`.",
                     inline=False
                 )
         else:
