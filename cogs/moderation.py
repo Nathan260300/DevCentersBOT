@@ -71,6 +71,44 @@ class ModerationCog(commands.Cog):
         elif isinstance(error, commands.BadArgument):
             await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
 
+    @commands.hybrid_command(help="Bannit un membre temporairement du serveur.")
+    @commands.has_permissions(ban_members=True) 
+    async def tempban(self, ctx: commands.Context, member: discord.Member, duration: int, unit: str, *, reason: str = "Aucune raison spécifiée"):
+        """
+        Commande pour bannir temporairement un membre.
+        Usage : /tempban @membre 10 m "Raison"
+        """
+        if ctx.author == member:
+            await ctx.send("❌ **Vous ne pouvez pas vous bannir vous-même !**", delete_after=5)
+            return
+        if ctx.guild.owner_id == member.id:
+            await ctx.send("❌ **Vous ne pouvez pas bannir le propriétaire du serveur !**", delete_after=5)
+            return
+        if ctx.author.top_role <= member.top_role:
+            await ctx.send("❌ **Vous ne pouvez pas bannir un membre ayant un rôle égal ou supérieur au vôtre !**", delete_after=5)
+            return
+        time_multiplier = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+        if unit not in time_multiplier:
+            await ctx.send("⚠ **Unité de temps invalide !** Utilisez `s` (secondes), `m` (minutes), `h` (heures), ou `d` (jours).", delete_after=5)
+            return
+        ban_time = duration * time_multiplier[unit]
+        try:
+            await member.ban(reason=f"Tempban ({duration}{unit}) - {reason}")
+            await ctx.send(f"✅ **{member.mention} a été banni pour {duration}{unit} !** Raison : {reason}")
+            await asyncio.sleep(ban_time)
+            await ctx.guild.unban(member)
+            await ctx.send(f"🔓 **{member.mention} a été débanni après {duration}{unit}.**")
+        except discord.errors.Forbidden:
+            await ctx.send("❌ **Je n'ai pas la permission de bannir ce membre.**", delete_after=5)
+    @tempban.error
+    async def tempban_error(self, ctx: commands.Context, error: Exception):
+        """Gestion des erreurs pour la commande tempban"""
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("🚫 **Vous n'avez pas la permission de bannir des membres !**", delete_after=5)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("⚠ **Veuillez mentionner un membre et une durée valide.**\nExemple : `/tempban @membre 10 m \"Raison\"`", delete_after=5)
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
 
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))
