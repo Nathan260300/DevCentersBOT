@@ -8,6 +8,7 @@ class HelpCog(commands.Cog):
         self.bot = bot
 
     async def category_autocomplete(
+        # type: ignore
         self, interaction: discord.Interaction, current: str
     ) -> List[app_commands.Choice[str]]:
         categories = ["Aide", "Jeux", "Modération", "Bot"]
