@@ -10,7 +10,7 @@ class HelpCog(commands.Cog):
     async def category_autocomplete(
         self, interaction: discord.Interaction, current: str
     ) -> List[app_commands.Choice[str]]:
-        categories = ["Aide", "Jeux", "Modération", "Bot-Control"]
+        categories = ["Aide", "Jeux", "Modération", "Bot"]
         return [
             app_commands.Choice(name=cat, value=cat)
             for cat in categories if current.lower() in cat.lower()
@@ -46,7 +46,7 @@ class HelpCog(commands.Cog):
                 ("clear", "Supprime un nombre spécifié de messages."),
                 ("repete", "Répète un message un certain nombre de fois."),
             ],
-            "Bot-Control": [
+            "Bot": [
                 ("restart", "Redémarre le bot"),
                 ("stop", "Arrête le bot"),
             ],
@@ -64,7 +64,7 @@ class HelpCog(commands.Cog):
                 embed.color = discord.Color.red()
                 embed.add_field(
                     name="❌ Erreur",
-                    value=f"La catégorie `{category}` n'existe pas.\nEssayez : `Aide`, `Jeux`, `Modération`, `Bot-Control`.",
+                    value=f"La catégorie `{category}` n'existe pas.\nEssayez : `Aide`, `Jeux`, `Modération`, `Bot`.",
                     inline=False
                 )
         else:
