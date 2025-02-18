@@ -62,19 +62,26 @@ class BotControlCog(commands.Cog):
             await owner.send(embed=embed)
             print("Le bot a été redémarré avec succès et est de retour en ligne !")
  
-    @commands.hybrid_command(help="Arrête le bot.")
-    @commands.is_owner()
+   @commands.hybrid_command(help="Arrête le bot.")
+   @commands.is_owner()
     async def stoppe(self, ctx):
-      """Commande pour arrêter le bot."""
-      embed = discord.Embed(
-          title="Arrêt du bot 🔴",
-          description="Le bot va s'arrêter maintenant. À bientôt ! 👋",
-          color=discord.Color.red()
-      )
-      await ctx.send(embed=embed)
-      loop = asyncio.get_event_loop()
-      loop.add_signal_handler(signal.SIGINT, self.bot.close)
-      await self.bot.close()
+        """Commande pour arrêter le bot."""
+        
+        
+        await ctx.interaction.response.defer()
+
+        
+        embed = discord.Embed(
+            title="Arrêt du bot 🔴",
+            description="Le bot va s'arrêter maintenant. À bientôt ! 👋",
+            color=discord.Color.red()
+        )
+
+        
+        await ctx.send(embed=embed)
+        
+        
+        await self.bot.close()
 
 async def setup(bot):
     await bot.add_cog(BotControlCog(bot))
