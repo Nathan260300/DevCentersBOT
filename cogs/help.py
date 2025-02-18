@@ -27,6 +27,8 @@ class HelpCog(commands.Cog):
             ["**/clear**", "**__Supprime un nombre spécifié de messages dans le canal.__**"],
             ["**-------------------------------------------------------------------------------**"],
             ["**/repete**", "**__Répète un message un nombre spécifié de fois.__**"],
+            ["**-------------------------------------------------------------------------------**"],
+            ["**/ban**", "**__Bannit un membre définitivement du serveur.__**"],
             ["**-------------------------------------------------------------------------------**"]
         ]
         
@@ -37,6 +39,6 @@ class HelpCog(commands.Cog):
             else:
                 tableau_str += f"{ligne[0]}\n"
         await ctx.send(f"**__Voici toutes les commandes disponibles__ :**\n{tableau_str}")
-
+        
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))
