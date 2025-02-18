@@ -64,7 +64,7 @@ class BotControlCog(commands.Cog):
  
     @commands.hybrid_command(help="Arrête le bot.")
     @commands.is_owner()
-    async def stoppe(self, ctx):
+    async def stop(self, ctx):
         """Commande pour arrêter le bot."""
         await ctx.interaction.response.defer()
         embed = discord.Embed(
