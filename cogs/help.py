@@ -29,7 +29,8 @@ class HelpCog(commands.Cog):
             ["**/repete**", "**__Répète un message un nombre spécifié de fois.__**"],
             ["**-------------------------------------------------------------------------------**"],
             ["**/ban**", "**__Bannit un membre définitivement du serveur.__**"],
-            ["**-------------------------------------------------------------------------------**"]
+            ["**-------------------------------------------------------------------------------**"],
+            ["**/tempban**", "**__Bannit un membre temporairement du serveur.__**"],
         ]
         
         tableau_str = ""
@@ -39,6 +40,6 @@ class HelpCog(commands.Cog):
             else:
                 tableau_str += f"{ligne[0]}\n"
         await ctx.send(f"**__Voici toutes les commandes disponibles__ :**\n{tableau_str}")
-        
+
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))
