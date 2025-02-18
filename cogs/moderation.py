@@ -127,5 +127,72 @@ class ModerationCog(commands.Cog):
         elif isinstance(error, commands.BadArgument):
             await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
 
+
+    @commands.hybrid_command(help="Réduit au silence un membre pour une durée définie.")
+    @commands.has_permissions(manage_roles=True) 
+    async def mute(self, ctx: commands.Context, member: discord.Member, duration: int, unit: str, *, reason: str = "Aucune raison spécifiée"):
+        """
+        Commande pour rendre un membre muet temporairement.
+        Usage : /mute @membre 10 m "Spam"
+        """
+        if ctx.author == member:
+            await ctx.send("❌ **Vous ne pouvez pas vous mute vous-même !**", delete_after=5)
+            return
+        if ctx.guild.owner_id == member.id:
+            await ctx.send("❌ **Vous ne pouvez pas mute le propriétaire du serveur !**", delete_after=5)
+            return
+        if ctx.author.top_role <= member.top_role:
+            await ctx.send("❌ **Vous ne pouvez pas mute un membre ayant un rôle égal ou supérieur au vôtre !**", delete_after=5)
+            return
+        time_multiplier = {"s": 1, "m": 60, "h": 3600, "d": 86400}
+        if unit not in time_multiplier:
+            await ctx.send("⚠ **Unité de temps invalide !** Utilisez `s` (secondes), `m` (minutes), `h` (heures), ou `d` (jours).", delete_after=5)
+            return
+        mute_time = duration * time_multiplier[unit]
+        muted_role = discord.utils.get(ctx.guild.roles, name="Mute")
+        if not muted_role:
+            try:
+                muted_role = await ctx.guild.create_role(name="Muted", reason="Création du rôle pour la commande mute")
+                for channel in ctx.guild.channels:
+                    await channel.set_permissions(muted_role, send_messages=False, speak=False)
+            except discord.Forbidden:
+                await ctx.send("❌ **Je n'ai pas la permission de créer/modifier des rôles !**", delete_after=5)
+                return
+        if muted_role in member.roles:
+            await ctx.send(f"⚠ **{member.mention} est déjà mute !**", delete_after=5)
+            return
+        try:
+            embed_dm = discord.Embed(
+                title="🔇 Mute Temporaire",
+                description=f"Vous avez été **mute temporairement** sur `{ctx.guild.name}`.",
+                color=discord.Color.orange()
+            )
+            embed_dm.add_field(name="⏳ Durée", value=f"{duration}{unit}", inline=True)
+            embed_dm.add_field(name="📌 Raison", value=reason, inline=True)
+            embed_dm.add_field(name="🔓 Unmute automatique", value="Oui", inline=True)
+            embed_dm.set_footer(text="Respectez les règles du serveur pour éviter d'autres sanctions.")
+            await member.send(embed=embed_dm)
+            dm_sent = True
+        except discord.Forbidden:
+            dm_sent = False
+        await member.add_roles(muted_role, reason=f"Muted ({duration}{unit}) - {reason}")
+        confirmation_msg = f"✅ **{member.mention} a été mute pour {duration}{unit} !** Raison : {reason}"
+        if not dm_sent:
+            confirmation_msg += "\n⚠ **Je n'ai pas pu lui envoyer un message privé.**"
+        await ctx.send(confirmation_msg)
+        await asyncio.sleep(mute_time)
+        if muted_role in member.roles:
+            await member.remove_roles(muted_role, reason="Fin du mute automatique")
+            await ctx.send(f"🔊 **{member.mention} a été unmute après {duration}{unit}.**")
+    @mute.error
+    async def mute_error(self, ctx: commands.Context, error: Exception):
+        """Gestion des erreurs pour la commande mute"""
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("🚫 **Vous n'avez pas la permission de gérer les rôles !**", delete_after=5)
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("⚠ **Veuillez mentionner un membre et une durée valide.**\nExemple : `/mute @membre 10 m \"Spam\"`", delete_after=5)
+        elif isinstance(error, commands.BadArgument):
+            await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
+
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))
