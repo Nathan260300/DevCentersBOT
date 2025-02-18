@@ -1,45 +1,79 @@
+import discord
 from discord.ext import commands
+from discord import app_commands
+from typing import List 
 
 class HelpCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.hybrid_command(help="Affiche une liste d'aide avec les commandes disponibles.")
-    async def aide(self, ctx):
-        tableau = [
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/aide**", "**__Affiche cette liste d'aide avec les commandes disponibles.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/addition**", "**__Additionne deux nombres donnés.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/dé**", "**__Lance un dé à 6 faces et affiche le résultat.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/kick**", "**__Expulse un utilisateur du serveur.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/multiplication**", "**__Multiplie deux nombres donnés.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/pileouface**", "**__Effectue un tirage de pile ou face.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/ping**", "**__Une blague...__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/soustraire**", "**__Soustrait deux nombres donnés.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/clear**", "**__Supprime un nombre spécifié de messages dans le canal.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/repete**", "**__Répète un message un nombre spécifié de fois.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/ban**", "**__Bannit un membre définitivement du serveur.__**"],
-            ["**-------------------------------------------------------------------------------**"],
-            ["**/tempban**", "**__Bannit un membre temporairement du serveur.__**"],
+    async def category_autocomplete(
+        # type: ignore
+        self, interaction: discord.Interaction, current: str
+    ) -> List[app_commands.Choice[str]]:
+        categories = ["Aide", "Jeux", "Modération"]
+        return [
+            app_commands.Choice(name=cat, value=cat)
+            for cat in categories if current.lower() in cat.lower()
         ]
-        
-        tableau_str = ""
-        for ligne in tableau:
-            if len(ligne) == 2:
-                tableau_str += "{:<25} {:<50}\n".format(*ligne)
+
+    @app_commands.command(name="aide", description="Affiche la liste des commandes disponibles.")
+    @app_commands.autocomplete(category=category_autocomplete)
+    async def aide(self, interaction: discord.Interaction, category: str = None):
+        embed = discord.Embed(
+            title="📜 Liste des Commandes",
+            description="Voici la liste des commandes disponibles.",
+            color=discord.Color.blue()
+        )
+
+        commandes = {
+            "Aide": [
+                ("aide", "Affiche cette liste d'aide.")
+            ],
+            "Jeux": [
+                ("dé", "Lance un dé à 6 faces."),
+                ("pileouface", "Effectue un tirage de pile ou face."),
+                ("addition", "Additionne deux nombres donnés."),
+                ("multiplication", "Multiplie deux nombres donnés."),
+                ("soustraire", "Soustrait deux nombres donnés."),
+                ("ping", "Une blague..."),
+            ],
+            "Modération": [
+                ("kick", "Expulse un utilisateur du serveur."),
+                ("ban", "Bannit un membre définitivement."),
+                ("tempban", "Bannit un membre temporairement."),
+                ("mute", "Mute un membre pour une durée définie."),
+                ("clear", "Supprime un nombre spécifié de messages."),
+                ("repete", "Répète un message un certain nombre de fois."),
+            ],
+        }
+
+        if category:
+            category = category.capitalize()
+            if category in commandes:
+                embed.add_field(
+                    name=f"📌 {category}",
+                    value="\n".join([f"**{cmd}** → {desc}" for cmd, desc in commandes[category]]),
+                    inline=False
+                )
             else:
-                tableau_str += f"{ligne[0]}\n"
-        await ctx.send(f"**__Voici toutes les commandes disponibles__ :**\n{tableau_str}")
+                embed.color = discord.Color.red()
+                embed.add_field(
+                    name="❌ Erreur",
+                    value=f"La catégorie `{category}` n'existe pas.\nEssayez : `Aide`, `Jeux`, `Modération`.",
+                    inline=False
+                )
+        else:
+            for cat, cmds in commandes.items():
+                embed.add_field(
+                    name=f"📌 {cat}",
+                    value="\n".join([f"**{cmd}** → {desc}" for cmd, desc in cmds]),
+                    inline=False
+                )
+
+        embed.set_footer(text="Utilisez ' / ' ou ' ! ' avant chaque commande pour l'exécuter.")
+
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))
