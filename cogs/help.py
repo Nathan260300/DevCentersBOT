@@ -48,7 +48,6 @@ class HelpCog(commands.Cog):
             ],
             "Bot Control": [
                 ("restart", "Redémarre le bot"),
-                ("stop", "Arrête le bot."),
             ],
         }
 
