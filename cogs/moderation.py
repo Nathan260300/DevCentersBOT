@@ -6,14 +6,63 @@ class ModerationCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @commands.hybrid_command(help="Expulse un utilisateur du serveur.")
+    @commands.hybrid_command(help="Kick un membre du serveur avec une raison facultative.")
     @commands.has_permissions(kick_members=True)
     async def kick(self, ctx, member: discord.Member, *, reason=None):
+        
+        if member.top_role >= ctx.author.top_role:
+            embed = discord.Embed(
+                title="Action impossible 🚫",
+                description="Tu ne peux pas kick cette personne, car elle a un rôle supérieur ou égal au tien.",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+        
+        
+        if any(role.permissions.administrator for role in member.roles):
+            embed = discord.Embed(
+                title="Action impossible 🚫",
+                description=f"Tu ne peux pas kicker {member.name}, car il/elle est un membre du staff.",
+                color=discord.Color.orange()
+            )
+            await ctx.send(embed=embed)
+            return
+
+        embed = discord.Embed(
+            title="Action de Kick 🚫",
+            description=f"**{member.name}** a été kické du serveur.",
+            color=discord.Color.red()
+        )
+        embed.add_field(name="Raison", value=reason or "Aucune raison spécifiée.", inline=False)
+        embed.set_footer(text=f"Action effectuée par {ctx.author.name}")
+        
+    
+        await ctx.send(embed=embed)
+
+        
+        pm_embed = discord.Embed(
+            title="Tu as été kické du serveur ⚠️",
+            description=f"Salut {member.name},\n\nTu as été kické du serveur {ctx.guild.name}.",
+            color=discord.Color.red()
+        )
+        pm_embed.add_field(name="Raison", value=reason or "Aucune raison spécifiée.", inline=False)
+        
         try:
-            await member.kick(reason=reason)
-            await ctx.send(f"{member.name} a été exclu(e) pour : {reason}")
-        except Exception as e:
-            await ctx.send(f"Impossible d'exclure {member.name}. Erreur : {str(e)}")
+            
+            await member.send(embed=pm_embed)
+        except discord.errors.Forbidden:
+            
+            await ctx.send(f"Impossible d'envoyer un message privé à {member.name}. Il/Elle a peut-être désactivé les MP.")
+
+    @kick.error
+    async def kick_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("Tu n'as pas la permission de kicker des membres.")
+        elif isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send("Tu dois spécifier un membre à kicker.")
+        else:
+            await ctx.send("Une erreur est survenue.")
 
     @commands.hybrid_command(help="Supprime un nombre de messages spécifié.")
     async def clear(self, ctx, nombre: int):
