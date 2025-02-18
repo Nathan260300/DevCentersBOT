@@ -76,7 +76,7 @@ class HelpCog(commands.Cog):
                     inline=False
                 )
 
-        embed.set_footer(text="Utilisez '/' avant chaque commande pour l'exécuter.")
+        embed.set_footer(text="Utilisez ' / ' ou ' ! ' avant chaque commande pour l'exécuter.")
 
        
         await interaction.followup.send(embed=embed)
