@@ -70,12 +70,12 @@ class ModerationCog(commands.Cog):
             await ctx.send("⚠ **Veuillez mentionner un membre à bannir.**\nExemple : `/ban @membre raison`", delete_after=5)
         elif isinstance(error, commands.BadArgument):
             await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
-
-    @commands.hybrid_command(help="Bannit un membre temporairement du serveur.")
-    @commands.has_permissions(ban_members=True) 
+    
+    @commands.hybrid_command(help="Bannit un membre temporairement du serveur et l'informe en DM.")
+    @commands.has_permissions(ban_members=True)  
     async def tempban(self, ctx: commands.Context, member: discord.Member, duration: int, unit: str, *, reason: str = "Aucune raison spécifiée"):
         """
-        Commande pour bannir temporairement un membre.
+        Commande pour bannir temporairement un membre en lui envoyant un message privé.
         Usage : /tempban @membre 10 m "Raison"
         """
         if ctx.author == member:
@@ -93,8 +93,25 @@ class ModerationCog(commands.Cog):
             return
         ban_time = duration * time_multiplier[unit]
         try:
+            embed_dm = discord.Embed(
+                title="🚨 Bannissement Temporaire",
+                description=f"Vous avez été **temporairement banni** du serveur `{ctx.guild.name}`.",
+                color=discord.Color.red()
+            )
+            embed_dm.add_field(name="⏳ Durée", value=f"{duration}{unit}", inline=True)
+            embed_dm.add_field(name="📌 Raison", value=reason, inline=True)
+            embed_dm.add_field(name="🔓 Déban automatique", value="Oui", inline=True)
+            embed_dm.set_footer(text="Respectez les règles du serveur pour éviter d'autres sanctions.")
+            await member.send(embed=embed_dm)
+            dm_sent = True
+        except discord.Forbidden:
+            dm_sent = False
+        try:
             await member.ban(reason=f"Tempban ({duration}{unit}) - {reason}")
-            await ctx.send(f"✅ **{member.mention} a été banni pour {duration}{unit} !** Raison : {reason}")
+            confirmation_msg = f"✅ **{member.mention} a été banni pour {duration}{unit} !** Raison : {reason}"
+            if not dm_sent:
+                confirmation_msg += "\n⚠ **Je n'ai pas pu lui envoyer un message privé.**"
+            await ctx.send(confirmation_msg)
             await asyncio.sleep(ban_time)
             await ctx.guild.unban(member)
             await ctx.send(f"🔓 **{member.mention} a été débanni après {duration}{unit}.**")
