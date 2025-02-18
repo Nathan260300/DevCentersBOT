@@ -62,7 +62,7 @@ class BotControlCog(commands.Cog):
             await owner.send(embed=embed)
             print("Le bot a été redémarré avec succès et est de retour en ligne !")
  
-   @commands.hybrid_command(help="Arrête le bot.")
+    @commands.hybrid_command(help="Arrête le bot.")
     @commands.is_owner()
     async def stoppe(self, ctx):
         """Commande pour arrêter le bot."""
