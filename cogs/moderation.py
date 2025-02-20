@@ -244,7 +244,7 @@ class ModerationCog(commands.Cog):
         elif isinstance(error, commands.BadArgument):
             await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
 
-    @commands.hybrid_command(description="Débannit un utilisateur avec son ID et lui envoie un message.")
+    @commands.hybrid_command(description="Débannit un utilisateur avec son ID.")
     @app_commands.describe(user_id="ID de l'utilisateur à débannir")
     @commands.has_permissions(ban_members=True)
     async def unban(self, ctx: commands.Context, user_id: str):  #
