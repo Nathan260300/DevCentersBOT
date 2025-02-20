@@ -20,9 +20,6 @@ class HelpCog(commands.Cog):
     @app_commands.command(name="aide", description="Affiche la liste des commandes disponibles.")
     @app_commands.autocomplete(category=category_autocomplete)
     async def aide(self, interaction: discord.Interaction, category: str = None):
-       
-        await interaction.response.defer(thinking=True)
-
         embed = discord.Embed(
             title="📜 Liste des Commandes",
             description="Voici la liste des commandes disponibles.",
@@ -30,7 +27,9 @@ class HelpCog(commands.Cog):
         )
 
         commandes = {
-            "Aide": [("aide", "Affiche cette liste d'aide.")],
+            "Aide": [
+                ("aide", "Affiche cette liste d'aide.")
+            ],
             "Jeux": [
                 ("dé", "Lance un dé à 6 faces."),
                 ("pileouface", "Effectue un tirage de pile ou face."),
@@ -46,10 +45,12 @@ class HelpCog(commands.Cog):
                 ("mute", "Mute un membre pour une durée définie."),
                 ("clear", "Supprime un nombre spécifié de messages."),
                 ("repete", "Répète un message un certain nombre de fois."),
+                ("unban", "Débannit un utilisateur avec son ID."),
+                ("unmute", "Unmute un utilisateur."),
             ],
             "Bot": [
                 ("restart", "Redémarre le bot"),
-                ("stop", "Arrête le bot"),
+                ("stop", "Arrête le bot."),
             ],
         }
 
@@ -78,8 +79,7 @@ class HelpCog(commands.Cog):
 
         embed.set_footer(text="Utilisez ' / ' ou ' ! ' avant chaque commande pour l'exécuter.")
 
-       
-        await interaction.followup.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(HelpCog(bot))
