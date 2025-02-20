@@ -1,6 +1,7 @@
 import asyncio
 import discord
 from discord.ext import commands
+from discord import app_commands
 
 class ModerationCog(commands.Cog):
     def __init__(self, bot):
@@ -201,7 +202,7 @@ class ModerationCog(commands.Cog):
         muted_role = discord.utils.get(ctx.guild.roles, name="Mute")
         if not muted_role:
             try:
-                muted_role = await ctx.guild.create_role(name="Muted", reason="Création du rôle pour la commande mute")
+                muted_role = await ctx.guild.create_role(name="Mute", reason="Création du rôle pour la commande mute")
                 for channel in ctx.guild.channels:
                     await channel.set_permissions(muted_role, send_messages=False, speak=False)
             except discord.Forbidden:
@@ -242,6 +243,93 @@ class ModerationCog(commands.Cog):
             await ctx.send("⚠ **Veuillez mentionner un membre et une durée valide.**\nExemple : `/mute @membre 10 m \"Spam\"`", delete_after=5)
         elif isinstance(error, commands.BadArgument):
             await ctx.send("⚠ **Membre introuvable. Veuillez mentionner un utilisateur valide.**", delete_after=5)
+
+    @commands.hybrid_command(description="Débannit un utilisateur avec son ID et lui envoie un message.")
+    @app_commands.describe(user_id="ID de l'utilisateur à débannir")
+    @commands.has_permissions(ban_members=True)
+    async def unban(self, ctx: commands.Context, user_id: str):  #
+        """Débannit un utilisateur et lui envoie un MP"""
+        try:
+            user_id = int(user_id)  
+            user = await self.bot.fetch_user(user_id) 
+            await ctx.guild.unban(user) 
+            embed = discord.Embed(
+                title="🔓 Unban réussi",
+                description=f"**{user.name}** a été débanni avec succès !",
+                color=discord.Color.green()
+            )
+            embed.set_footer(text=f"Unban effectué par {ctx.author}", icon_url=ctx.author.avatar.url)
+
+            await ctx.send(embed=embed)
+
+            try:
+                mp_embed = discord.Embed(
+                    title="🔓 Vous avez été débanni",
+                    description=f"Vous avez été débanni du serveur **{ctx.guild.name}**.\nMerci de respecter les règles si vous revenez.",
+                    color=discord.Color.green()
+                )
+                await user.send(embed=mp_embed)
+            except discord.Forbidden:
+                await ctx.send(f"⚠️ Impossible d'envoyer un MP à {user.name}.")
+
+        except ValueError:
+            await ctx.send(embed=discord.Embed(
+                title="❌ Erreur",
+                description="L'ID fourni n'est pas valide. Assurez-vous de copier un ID correct.",
+                color=discord.Color.red()
+            ))
+        except discord.NotFound:
+            await ctx.send(embed=discord.Embed(
+                title="❌ Erreur",
+                description="L'utilisateur avec cet ID n'existe pas ou n'est pas banni.",
+                color=discord.Color.red()
+            ))
+        except discord.Forbidden:
+            await ctx.send(embed=discord.Embed(
+                title="❌ Permission insuffisante",
+                description="Je n'ai pas la permission de débannir cet utilisateur.",
+                color=discord.Color.red()
+            ))
+        except discord.HTTPException:
+            await ctx.send(embed=discord.Embed(
+                title="❌ Erreur de Discord",
+                description="Une erreur s'est produite lors du débannissement.",
+                color=discord.Color.red()
+            ))
+
+    @commands.hybrid_command(description="Unmute un utilisateur.")
+    async def unmute(self, ctx, member: discord.Member):
+        """Commande pour unmute un utilisateur."""
+        if member.guild.get_member(member.id).guild_permissions.administrator:
+            await ctx.send("Je ne peux pas unmute un administrateur.")
+            return
+
+      
+        await member.edit(mute=False)
+
+        embed = discord.Embed(
+            title="Utilisateur Unmute",
+            description=f"{member.mention} a été unmuté avec succès.",
+            color=discord.Color.green()
+        )
+        embed.set_footer(text="Bot créé par [Ton Nom]")
+        
+        
+        await ctx.send(embed=embed)
+
+       
+        try:
+            await member.send(
+                embed=discord.Embed(
+                    title="Tu as été unmuté",
+                    description="Tu as été unmuté sur le serveur.",
+                    color=discord.Color.green()
+                )
+            )
+        except discord.Forbidden:
+            await ctx.send(
+                f"Impossible d'envoyer un message privé à {member.mention}."
+            )
 
 async def setup(bot):
     await bot.add_cog(ModerationCog(bot))
