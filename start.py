@@ -9,7 +9,7 @@ token = os.getenv("DISCORD_TOKEN")
 
 class MonBot(commands.Bot):
     async def setup_hook(self):
-      for extension in ['games', 'moderation', 'help', 'botcontrol', 'welcome']:
+      for extension in ['games', 'moderation', 'help', 'botcontrol', 'welcome'], 'info':
         await self.load_extension(f"cogs.{extension}")
 
 intents = discord.Intents.all()
