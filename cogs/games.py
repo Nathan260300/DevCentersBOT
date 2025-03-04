@@ -46,15 +46,6 @@ class GamesCog(commands.Cog):
         )
         await ctx.send(embed=embed)
 
-    @commands.hybrid_command(help="Une blague...")
-    async def ping(self, ctx):
-        embed = discord.Embed(
-            title="Blague 🤪",
-            description="**Pong 🏓 !**",
-            color=discord.Color.purple()
-        )
-        await ctx.send(embed=embed)
-
     @commands.hybrid_command(help="Effectue la multiplication de deux nombres et affiche le résultat.")
     async def multiplication(self, ctx: commands.Context, a: int, b: int):
         result = a * b
