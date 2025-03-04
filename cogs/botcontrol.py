@@ -61,16 +61,6 @@ class BotControlCog(commands.Cog):
             )
             await owner.send(embed=embed)
             print("Le bot a été redémarré avec succès et est de retour en ligne !")
-
-    @commands.hybrid_command(help="Affiche la latence du bot en ms.")
-    async def ping(self, ctx):
-        embed = discord.Embed(
-            title="Ping ",
-            description="**Pong 🏓 !
-            Latence : {round(bot.latency * 1000)}ms**",
-            color=discord.Color.purple()
-        )
-        await ctx.send(embed=embed)
         
     @commands.hybrid_command(help="Arrête le bot.")
     @commands.is_owner()
