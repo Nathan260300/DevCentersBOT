@@ -68,6 +68,15 @@ class GamesCog(commands.Cog):
             )
             await message.reply(embed=embed, mention_author=True)
         await self.bot.process_commands(message)
+        
+        @commands.hybrid_command(help="Une blague...")
+        async def ping(self, ctx):
+          embed = discord.Embed(
+            title="Blague 🤪",
+            description="**Pong 🏓 !**",
+            color=discord.Color.purple()
+        )
+        await ctx.send(embed=embed)
 
 async def setup(bot):
     await bot.add_cog(GamesCog(bot))
