@@ -36,7 +36,6 @@ class HelpCog(commands.Cog):
                 ("addition", "Additionne deux nombres donnés."),
                 ("multiplication", "Multiplie deux nombres donnés."),
                 ("soustraire", "Soustrait deux nombres donnés."),
-                ("ping", "Une blague..."),
             ],
             "Modération": [
                 ("kick", "Expulse un membre du serveur avec une raison facultative."),
@@ -50,6 +49,7 @@ class HelpCog(commands.Cog):
             ],
             "Bot": [
                 ("restart", "Redémarre le bot"),
+                ("ping", "Affiche la latence du bot en ms."),
                 ("stop", "Arrête le bot."),
             ],
         }
